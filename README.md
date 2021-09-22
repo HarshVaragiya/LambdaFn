@@ -12,7 +12,6 @@ The service should allow executing the following:
 - Binary on the server running the service
 - Code written as Lambda zip running inside container on the server
 - Container to be executed on the server (or kubernetes cluster)
-- (practically any struct implementing the LambdaExecutor Interface can execute code)
 
 ## ToDo List
 - [x] Implement Code Execution on server as a service (Binary mode)
