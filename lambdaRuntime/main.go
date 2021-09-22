@@ -6,7 +6,7 @@ import (
 
 var (
 	log     = logrus.New()
-	rpcPort = 444
+	rpcPort = uint16(444)
 )
 
 func main() {

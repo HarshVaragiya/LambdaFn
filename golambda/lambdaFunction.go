@@ -28,8 +28,15 @@ func (function Function) Invoke(event Event) (response Response, err error) {
 }
 
 func NewLocalOsLambdaFunction(name, codeUri, argument string) Function {
-	log.Infof("Creating New Lambda Function [%s] with defaults.", name)
+	log.Infof("Creating New Default Local OS Lambda Function [%s]", name)
 	function := Function{Name: name, CodeUri: codeUri, Handler: argument, Timeout: defaultTimeout}
 	function.Executor = NewLocalOsExecutor(function)
+	return function
+}
+
+func NewContainerLambdaFunction(name, codeUri, runtime, handler string) Function {
+	log.Infof("Creating New Default Container Lambda Function [%s]", name)
+	function := Function{Name: name, CodeUri: codeUri, Handler: handler, Timeout: defaultTimeout, Runtime: runtime}
+	function.Executor = NewContainerExecutor(function)
 	return function
 }
