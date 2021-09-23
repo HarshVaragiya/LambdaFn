@@ -1,6 +1,7 @@
 package golambda
 
 import (
+	lambda "github.com/HarshVaragiya/LambdaFn/liblambda"
 	"time"
 )
 
@@ -14,7 +15,7 @@ type Function struct {
 	Runtime     string
 }
 
-func (function Function) Invoke(event Event) (response Response, err error) {
+func (function Function) Invoke(event *lambda.Event) (response *lambda.Response, err error) {
 	log.Infof("Invoking Lambda [%s]", function.Name)
 	log.Tracef("Event: %s", event.EventData)
 	response, err = function.Executor.execute(event)

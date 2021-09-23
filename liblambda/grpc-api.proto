@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package lambda;
+
+option go_package = "./liblambda;lambda";
+
+message Event{
+    string eventId = 1;
+    string eventData = 2;
+    string context = 3;
+}
+
+message Response{
+    string data = 1;
+    string stderr = 2;
+    int32 statusCode = 3;
+    string message = 4;
+}
+
+service Lambda{
+    rpc Invoke (Event) returns (Response);
+}

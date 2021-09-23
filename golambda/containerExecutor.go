@@ -1,5 +1,10 @@
 package golambda
 
+import (
+	"fmt"
+	lambda "github.com/HarshVaragiya/LambdaFn/liblambda"
+)
+
 type ContainerExecutor struct {
 	functionName string
 	runtime      string
@@ -14,14 +19,15 @@ func NewContainerExecutor(function Function) ContainerExecutor {
 	return containerExecutor
 }
 
-func (executor ContainerExecutor) execute(event Event) (response Response, err error) {
+func (executor ContainerExecutor) execute(event *lambda.Event) (response *lambda.Response, err error) {
 	log.Debugf("Invoking Lambda [%s] in container.", executor.functionName)
+	return &lambda.Response{}, fmt.Errorf("not implemented")
 }
 
 func (executor ContainerExecutor) startContainer() (err error) {
-
+	return fmt.Errorf("not implemented")
 }
 
 func (executor ContainerExecutor) stopContainer() (err error) {
-
+	return fmt.Errorf("not implemeted")
 }

@@ -3,6 +3,7 @@ package golambda
 import (
 	"bytes"
 	"context"
+	lambda "github.com/HarshVaragiya/LambdaFn/liblambda"
 	"io"
 	"os/exec"
 )
@@ -16,7 +17,7 @@ func NewLocalOsExecutor(function Function) LocalOsExecutor {
 	return LocalOsExecutor{codeExecutor: executor}
 }
 
-func (localOsExecutor LocalOsExecutor) execute(event Event) (response Response, err error) {
+func (localOsExecutor LocalOsExecutor) execute(event *lambda.Event) (response *lambda.Response, err error) {
 	log.Debug("Invoking Local OS Executor.")
 	stdout, stderr, err := localOsExecutor.runLocalBinary(event.EventData)
 	return NewSimpleLambdaResponse(stdout, stderr, err), nil
