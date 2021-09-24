@@ -1,11 +1,17 @@
 package golambda
 
 import (
-	"fmt"
 	lambda "github.com/HarshVaragiya/LambdaFn/liblambda"
+	"google.golang.org/grpc"
 )
 
-func invokeGrpcRequest(targetIp string, targetPort uint16, targetBootstrapBinary string, event *lambda.Event) (response *lambda.Response, err error) {
-	log.Debugf("Remote gRPC invocation to [%s:%v] with bootstrap [%s]", targetIp, targetPort, targetBootstrapBinary)
-	return &lambda.Response{}, fmt.Errorf("not implemented")
+func NewLambdaClient(target string) (lambda.LambdaClient, error) {
+	log.Debugf("Attempting to connect to [%s] over gRPC", target)
+	conn, err := grpc.Dial(target, grpc.WithInsecure())
+	if err != nil {
+		log.Warnf("could not connect to server. error = %v", err)
+		return nil, err
+	}
+	client := lambda.NewLambdaClient(conn)
+	return client, nil
 }

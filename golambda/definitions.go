@@ -33,7 +33,7 @@ func NewSimpleLambdaEvent(event string) *lambda.Event {
 	return &lambda.Event{EventData: event}
 }
 
-func NewSimpleLambdaResponse(stdout, stderr string, err error) (response *lambda.Response) {
+func NewSimpleLambdaResponse(eventId, stdout, stderr string, err error) (response *lambda.Response) {
 	statusCode := int32(200)
 	if err != nil {
 		if knownErrorStatusCode, exists := statusCodeMap[err.Error()]; exists {
@@ -43,5 +43,9 @@ func NewSimpleLambdaResponse(stdout, stderr string, err error) (response *lambda
 		}
 		stderr += err.Error()
 	}
-	return &lambda.Response{Data: stdout, Stderr: stderr, StatusCode: statusCode}
+	return &lambda.Response{Data: stdout, Stderr: stderr, StatusCode: statusCode, EventId: eventId}
+}
+
+func NewErrorLambdaResponse(eventId string, err error, stderr string) *lambda.Response {
+	return &lambda.Response{EventId: eventId, Message: err.Error(), Stderr: stderr}
 }

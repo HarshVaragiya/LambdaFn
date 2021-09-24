@@ -15,6 +15,7 @@ message Response{
     string stderr = 2;
     int32 statusCode = 3;
     string message = 4;
+    string eventId = 5;
 }
 
 service Lambda{
