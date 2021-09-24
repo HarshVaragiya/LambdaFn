@@ -7,6 +7,9 @@ An open source, self-hosted service to run AWS Lambda Functions on your own hard
 - It would allow user to build a lambda function via AWS Cloudformation templates (drop in replacement)
 - It would allow users to execute the lambda and send events via an HTTP REST API 
 
+## Working
+![Working Diagram](assets/initialDiagram.png)
+
 ## Goals 
 The service should allow executing the following:
 - Binary on the server running the service
