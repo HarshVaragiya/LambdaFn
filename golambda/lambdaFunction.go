@@ -21,6 +21,7 @@ func (function Function) Invoke(event *lambda.Event) (response *lambda.Response,
 	response, err = function.Executor.execute(event)
 	if err != nil {
 		log.Errorf("Error Invoking Lambda Function. error = %v", err)
+		return
 	}
 	log.Tracef("Response Data: [%s]", response.Data)
 	log.Tracef("Response StatusCode: [%v]", response.StatusCode)

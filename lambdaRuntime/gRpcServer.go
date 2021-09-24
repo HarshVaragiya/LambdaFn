@@ -26,6 +26,6 @@ func (rpcServer lambdaRpcServer) Invoke(ctx context.Context, event *lambda.Event
 		log.Warnf("Error invoking bootstrap binary. Unable to Marshal event. error = %v", err)
 		return &lambda.Response{EventId: event.EventId, Message: err.Error()}, err
 	}
-	stdout, stderr, err := lambda.RunLocalBinary(stdinInput,ctx,bootstrap,handler)
-	return golambda.NewSimpleLambdaResponse(event.EventId, stdout, stderr, err), nil
+	stdout, stderr, responseData, err := lambda.RunLocalBinary(stdinInput, ctx, bootstrap, handler)
+	return golambda.NewSimpleLambdaResponse(event.EventId, stdout, stderr, responseData, err), nil
 }

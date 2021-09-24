@@ -24,6 +24,7 @@ func NewContainerExecutor(function Function) ContainerExecutor {
 
 func (executor ContainerExecutor) execute(event *lambda.Event) (*lambda.Response, error) {
 	log.Debugf("Invoking function [%s] in container executor.", executor.functionName)
+	executor.rpcPort = 8888
 	target := fmt.Sprintf("127.0.0.1:%v", executor.rpcPort)
 	var err error
 	executor.client, err = NewLambdaClient(target)

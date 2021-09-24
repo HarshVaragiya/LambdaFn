@@ -5,6 +5,7 @@ import (
 	lambda "github.com/HarshVaragiya/LambdaFn/liblambda"
 	"github.com/sirupsen/logrus"
 	"time"
+	"github.com/google/uuid"
 )
 
 var (
@@ -14,7 +15,7 @@ var (
 		"signal: killed": 201,
 		"error":          208,
 	}
-	defaultTimeout = time.Second * 3
+	defaultTimeout = time.Second * 10
 )
 
 type LambdaExecutor interface {
@@ -30,10 +31,10 @@ type BasicCodeExecutor struct {
 
 
 func NewSimpleLambdaEvent(event string) *lambda.Event {
-	return &lambda.Event{EventData: event}
+	return &lambda.Event{EventData: event, EventId: uuid.New().String()}
 }
 
-func NewSimpleLambdaResponse(eventId, stdout, stderr string, err error) (response *lambda.Response) {
+func NewSimpleLambdaResponse(eventId, stdout, stderr, responseString string, err error) (response *lambda.Response) {
 	statusCode := int32(200)
 	if err != nil {
 		if knownErrorStatusCode, exists := statusCodeMap[err.Error()]; exists {
@@ -43,7 +44,7 @@ func NewSimpleLambdaResponse(eventId, stdout, stderr string, err error) (respons
 		}
 		stderr += err.Error()
 	}
-	return &lambda.Response{Data: stdout, Stderr: stderr, StatusCode: statusCode, EventId: eventId}
+	return &lambda.Response{Data: responseString, Stderr: stderr, StatusCode: statusCode, EventId: eventId, Message: stdout}
 }
 
 func NewErrorLambdaResponse(eventId string, err error, stderr string) *lambda.Response {

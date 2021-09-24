@@ -21,7 +21,6 @@ func TestFunction_Invoke(t *testing.T) {
 func TestNewSimpleLocalFunctionExecutor(t *testing.T) {
 	t.Run("LocalExecutionLambdaTimeout", func(t *testing.T) {
 		lambda := NewLocalOsLambdaFunction("test-lambda-function-2", "sleep", "5")
-		log.Info(statusCodeMap)
 		response, err := lambda.Invoke(NewSimpleLambdaEvent(""))
 		if err != nil {
 			t.Error(err)
