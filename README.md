@@ -8,6 +8,8 @@ An open source, self-hosted service to run AWS Lambda Functions on your own hard
 - It would allow users to execute the lambda and send events via an HTTP REST API 
 
 ## Working
+![Integration Test](assets/integration_test_pic.jpeg)
+![Spawned Function Container](assets/container_pic.jpeg)
 ![Working Diagram](assets/initialDiagram.png)
 
 ## Goals 
@@ -18,13 +20,13 @@ The service should allow executing the following:
 
 ## ToDo List
 - [x] Implement Code Execution on server as a service (Binary mode)
+- [ ] Implement Function as a service inside container (Work in progress)
 - [ ] Integrate HTTP REST API to allow creation of lambda functions and executing them
-- [ ] Implement Function as a service inside container
+- [ ] Dockerize the whole service
+- [ ] Implement Hot & Cold Containers with timeouts
 - [ ] Implement Container Running as a service
-- [ ] Dockerize the service
-- [ ] Implement Hot & Cold Containers with timeouts 
-- [ ] Implement methods to monitor resource utilisation by functions
-- [ ] Implement Authentication / Authorization on the HTTP REST API 
 
 ### Future Goals
 - Implement and Integrate an HTTP Proxy (like API Gateway) to allow functions to respond to REST calls
+- [ ] Implement methods to monitor resource utilisation by functions
+- [ ] Implement Authentication / Authorization on the HTTP REST API 
