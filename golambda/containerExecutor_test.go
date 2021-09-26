@@ -6,7 +6,7 @@ import (
 )
 
 func TestContainerExecutor_execute(t *testing.T) {
-	t.Run("ContainerExecutorTest", func(t *testing.T) {
+	t.Run("ContainerExecutorIntegrationTest", func(t *testing.T) {
 		lambda := NewContainerLambdaFunction("my-awesome-function","","python3","example.lambda_handler")
 		event := NewSimpleLambdaEvent("Hello from the integration test!")
 		log.Printf("Sending EventId [%s]: %v", event.EventId, event.EventData)

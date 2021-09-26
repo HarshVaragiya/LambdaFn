@@ -3,9 +3,9 @@ package golambda
 import (
 	"context"
 	lambda "github.com/HarshVaragiya/LambdaFn/liblambda"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"time"
-	"github.com/google/uuid"
 )
 
 var (
@@ -14,6 +14,9 @@ var (
 		"default":        200,
 		"signal: killed": 201,
 		"error":          208,
+	}
+	runtimeToDockerfileMap = map[string]string{
+		"python": "../templates/python.dockerfile.template",
 	}
 	defaultTimeout = time.Second * 10
 )

@@ -16,6 +16,7 @@ var (
 	handler = os.Getenv("LAMBDA_HANDLER_FUNCTION")
 	bootstrap = os.Getenv("LAMBDA_BOOTSTRAP_BINARY")
 	functionName = os.Getenv("LAMBDA_FUNCTION_NAME")
+	bootstrapLogFile = os.Getenv("BOOTSTRAP_LOG_FILE")
 )
 
 
@@ -29,6 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not start listener. error = %v", err)
 	}
+	log.Printf("bootstrap log file: %v", bootstrapLogFile)
 	log.Println("attached to listener port. serving gRPC lambda service")
 	log.Fatal(server.Serve(listener))
 }

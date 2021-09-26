@@ -1,6 +1,6 @@
 FROM amazonlinux
 
-ENV LAMBDA_RUNTIME=python3.7
+ENV LAMBDA_RUNTIME=python
 ENV LAMBDA_BOOTSTRAP_BINARY=/lambda/bootstrap.py
 ENV BOOTSTRAP_LOG_FILE=/lambda/bootstrap.log
 
@@ -11,5 +11,5 @@ COPY images/python/bootstrap.py /lambda/bootstrap.py
 WORKDIR /lambda/code/
 COPY images/python/__init__.py /lambda/code/__init__.py
 
-RUN yum install python3 -y pip3 install boto3 && chmod 777 /lambda/bootstrap.py
+RUN yum install python3 unzip -y pip3 install boto3 && chmod 777 /lambda/bootstrap.py
 ENTRYPOINT [ "/lambda/lib/runtime" ]
