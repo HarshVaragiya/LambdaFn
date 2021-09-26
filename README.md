@@ -1,6 +1,8 @@
 # LambdaFn
 An open source, self-hosted service to run AWS Lambda Functions on your own hardware.
 
+**This project is to learn more about Golang, FAAS and cloud computing**
+
 ## Project
 - This project is to try creating a service which can work like AWS Lambda / Google AppEngine
 - It would lack the trigger integrations that AWS Provides with its lambda functions
@@ -27,6 +29,6 @@ The service should allow executing the following:
 - [ ] Implement Container Running as a service
 
 ### Future Goals
-- Implement and Integrate an HTTP Proxy (like API Gateway) to allow functions to respond to REST calls
+- [ ] Implement and Integrate an HTTP Proxy (like API Gateway) to allow functions to respond to REST calls
 - [ ] Implement methods to monitor resource utilisation by functions
 - [ ] Implement Authentication / Authorization on the HTTP REST API 
