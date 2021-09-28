@@ -2,7 +2,7 @@ package golambda
 
 import (
 	"context"
-	lambda "github.com/HarshVaragiya/LambdaFn/liblambda"
+	"github.com/HarshVaragiya/LambdaFn/liblambda"
 )
 
 type LocalOsExecutor struct {
@@ -14,7 +14,7 @@ func NewLocalOsExecutor(function Function) LocalOsExecutor {
 	return LocalOsExecutor{codeExecutor: executor}
 }
 
-func (localOsExecutor LocalOsExecutor) execute(event *lambda.Event) (response *lambda.Response, err error) {
+func (localOsExecutor LocalOsExecutor) execute(event *liblambda.Event) (response *liblambda.Response, err error) {
 	log.Debug("Invoking Local Binary.")
 	stdout, stderr, responseString, err := localOsExecutor.runLocalBinary(event.EventData)
 	return NewSimpleLambdaResponse(event.EventId, stdout, stderr, responseString, err), nil
@@ -23,5 +23,5 @@ func (localOsExecutor LocalOsExecutor) execute(event *lambda.Event) (response *l
 func (localOsExecutor LocalOsExecutor) runLocalBinary(event string) (string, string, string, error) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), localOsExecutor.codeExecutor.functionTimeout)
 	defer cancelFunc()
-	return lambda.RunLocalBinary(event, ctx, localOsExecutor.codeExecutor.codeUri, localOsExecutor.codeExecutor.functionHandler)
+	return liblambda.RunLocalBinary(event, ctx, localOsExecutor.codeExecutor.codeUri, localOsExecutor.codeExecutor.functionHandler)
 }

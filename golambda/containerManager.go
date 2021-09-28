@@ -1,142 +1,70 @@
 package golambda
 
 import (
-	"bufio"
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/archive"
-	"io"
-	"io/ioutil"
-	"os"
-	"strings"
+	"github.com/docker/go-connections/nat"
 )
 
-type DockerImageBuilder struct {
+type DockerContainerManager struct {
 	dockerClient		*client.Client
-	dockerBuildOpts 	*types.ImageBuildOptions
 }
 
-func (builder *DockerImageBuilder) Init() error {
+func (manager *DockerContainerManager) Init() error {
 	var err error
-	builder.dockerClient, err = client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	manager.dockerClient, err = client.NewClientWithOpts(client.WithAPIVersionNegotiation())
 	if err != nil {
 		log.Errorf("error connecting to docker daemon. error = %v", err)
 		return err
 	}
-	builder.dockerBuildOpts = &types.ImageBuildOptions{
-		Dockerfile: "Dockerfile",
-		Remove: true,
-	}
 	return nil
 }
 
-func (builder *DockerImageBuilder) BuildLambdaImage (ctx context.Context, functionName, codeUri, runtime, handler string, environ map[string]string) error {
-	log.Printf("Generating new function image for [%v] with runtime [%v]", functionName, runtime)
-	tempDir, err := os.MkdirTemp(os.TempDir(), fmt.Sprintf("LambdaFn-Build-%s-",functionName))
+func (manager *DockerContainerManager) startContainer(ctx context.Context, image, localPort, srcFolder, targetFolder string, env []string) (string, error) {
+	containerOptions := &container.Config{
+		Image: image,
+		ExposedPorts: nat.PortSet{nat.Port(fmt.Sprintf("%d", containerRpcPort)): struct{}{}},
+		Env: env,
+	}
+	hostOptions := &container.HostConfig{
+		PortBindings: map[nat.Port][]nat.PortBinding{
+			nat.Port(fmt.Sprintf("%d", containerRpcPort)): {{ HostIP: "127.0.0.1", HostPort: localPort}},
+		},
+		Mounts: []mount.Mount{
+			{
+				Type: mount.TypeBind,
+				Source: srcFolder,
+				Target: targetFolder,
+			},
+		},
+		AutoRemove: true,
+	}
+	resp, err := manager.dockerClient.ContainerCreate(ctx, containerOptions, hostOptions, nil, nil, "")
 	if err != nil {
-		log.Warnf("error creating temp file for docker image creation. error = %v", err)
-		return err
+		log.Errorf("error creating container. error = %v", err)
+		return "", err
 	}
-	defer os.RemoveAll(tempDir)
-	log.Tracef("created temporary directory at %v", tempDir)
-	templateFile, exists := runtimeToDockerfileMap[runtime]
-	if !exists {
-		log.Errorf("runtime [%v] has no docker template present. please consider defining it.", runtime)
-		return fmt.Errorf("docker template not found")
+	if err = manager.dockerClient.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		log.Errorf("error starting the container. error = %v", err)
+		return "", err
 	}
-	log.Debugf("loading template for runtime [%v] - [%v]", runtime, templateFile)
-	prepareEnvironmentVariables(functionName, handler, environ)
-	err = createDockerfileWithEnv(templateFile, tempDir, environ)
-	if err != nil {
-		log.Errorf("error creating dockerfile from template. error = %v", err)
-		return err
-	}
-	err = loadCodeZipFromCodeUri(tempDir, codeUri)
-	if err != nil {
-		log.Errorf("error with codeUri. unable to continue with build. error = %v", err)
-		return err
-	}
-	tar, err := archive.TarWithOptions(tempDir, &archive.TarOptions{})
-	if err != nil{
-		log.Errorf("error creating docker context tar archive. error = %v", err)
-		return err
-	}
-	defer tar.Close()
-	res, err := builder.dockerClient.ImageBuild(ctx, tar, *builder.dockerBuildOpts)
-	if err != nil {
-		log.Warnf("error creating function image. error = %v", err)
-		return err
-	}
-	defer res.Body.Close()
-	err = print(res.Body)
-	if err != nil {
-		log.Printf("error building image? error = %v",err)
-		return err
-	}
-	return nil
-}
-type ErrorLine struct {
-	Error       string      `json:"error"`
-	ErrorDetail ErrorDetail `json:"errorDetail"`
+	log.Debugf("container [%s] started with required mappings", resp.ID)
+	return resp.ID, nil
 }
 
-type ErrorDetail struct {
-	Message string `json:"message"`
+func (manager *DockerContainerManager) stopContainer(ctx context.Context, containerId string) error {
+	err := manager.dockerClient.ContainerStop(ctx, containerId, &containerTimeout)
+	if err != nil {
+		log.Errorf("error stopping docker container [%s]. error = %v", containerId, err)
+	}
+	return err
 }
 
-func print(rd io.Reader) error {
-	var lastLine string
-	scanner := bufio.NewScanner(rd)
-	for scanner.Scan() {
-		lastLine = scanner.Text()
-		fmt.Println(scanner.Text())
-	}
-	errLine := &ErrorLine{}
-	json.Unmarshal([]byte(lastLine), errLine)
-	if errLine.Error != "" {
-		return errors.New(errLine.Error)
-	}
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-	return nil
-}
 
-func createDockerfileWithEnv(templateFile, tempDir string, environ map[string]string)error{
-	templateBytes, err := ioutil.ReadFile(templateFile)
-	if err != nil {
-		log.Errorf("error reading template file [%v]. error = %v", templateFile, err)
-		return err
-	}
-	dockerfileString := string(templateBytes)
-	envString := environmentVariablesToString(environ)
-	strings.Replace( dockerfileString,"<<ENVIRONMENT_VARIABLES>>", envString, 1)
-	err = ioutil.WriteFile(fmt.Sprintf("%s/Dockerfile",tempDir),[]byte(dockerfileString), 666)
-	if err != nil{
-		log.Errorf("error saving dockerfile at [%v]. error = %v", tempDir, err)
-		return err
-	}
-	return nil
-}
-
-func loadCodeZipFromCodeUri(tempDir, codeUri string) error {
-	// this function can change if we load from s3 or HDFS or some other storage service. ideal way would be to use interface
-	codeBytes, err := ioutil.ReadFile(codeUri)
-	if err != nil {
-		log.Errorf("error reading from codeUri file. error = %v", err)
-		return err
-	}
-	err = ioutil.WriteFile(fmt.Sprintf("%s/source_code.zip",tempDir), codeBytes, 0666)
-	if err != nil {
-		log.Errorf("error writing to build folder. error saving source_code.zip . error = %v", err)
-		return err
-	}
-	return nil
-}
 
 func prepareEnvironmentVariables(functionName, handler string, env map[string]string){
 	_ , exists := env["LAMBDA_FUNCTION_NAME"]
@@ -157,13 +85,4 @@ func prepareEnvironmentVariables(functionName, handler string, env map[string]st
 	} else {
 		env["LAMBDA_HANDLER_FUNCTION"] = handler
 	}
-}
-
-func environmentVariablesToString(env map[string]string) string {
-	envStrings := make([]string, len(env))
-	for key, value := range env {
-		log.Debugf("Adding key [%v] as [%v]", key, value)
-		envStrings = append(envStrings, fmt.Sprintf("ENV %s=%s", key, value))
-	}
-	return strings.Join(envStrings, "\n") + "\n"
 }

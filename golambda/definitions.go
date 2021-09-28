@@ -2,7 +2,7 @@ package golambda
 
 import (
 	"context"
-	lambda "github.com/HarshVaragiya/LambdaFn/liblambda"
+	"github.com/HarshVaragiya/LambdaFn/liblambda"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -15,14 +15,13 @@ var (
 		"signal: killed": 201,
 		"error":          208,
 	}
-	runtimeToDockerfileMap = map[string]string{
-		"python": "../templates/python.dockerfile.template",
-	}
 	defaultTimeout = time.Second * 10
+	containerRpcPort = uint16(8888)
+	containerTimeout = time.Second * 10
 )
 
 type LambdaExecutor interface {
-	execute(event *lambda.Event)(*lambda.Response, error)
+	execute(event *liblambda.Event)(*liblambda.Response, error)
 }
 
 type BasicCodeExecutor struct {
@@ -33,11 +32,11 @@ type BasicCodeExecutor struct {
 }
 
 
-func NewSimpleLambdaEvent(event string) *lambda.Event {
-	return &lambda.Event{EventData: event, EventId: uuid.New().String()}
+func NewSimpleLambdaEvent(event string) *liblambda.Event {
+	return &liblambda.Event{EventData: event, EventId: uuid.New().String()}
 }
 
-func NewSimpleLambdaResponse(eventId, stdout, stderr, responseString string, err error) (response *lambda.Response) {
+func NewSimpleLambdaResponse(eventId, stdout, stderr, responseString string, err error) (response *liblambda.Response) {
 	statusCode := int32(200)
 	if err != nil {
 		if knownErrorStatusCode, exists := statusCodeMap[err.Error()]; exists {
@@ -47,9 +46,9 @@ func NewSimpleLambdaResponse(eventId, stdout, stderr, responseString string, err
 		}
 		stderr += err.Error()
 	}
-	return &lambda.Response{Data: responseString, Stderr: stderr, StatusCode: statusCode, EventId: eventId, Message: stdout}
+	return &liblambda.Response{Data: responseString, Stderr: stderr, StatusCode: statusCode, EventId: eventId, Message: stdout}
 }
 
-func NewErrorLambdaResponse(eventId string, err error, stderr string) *lambda.Response {
-	return &lambda.Response{EventId: eventId, Message: err.Error(), Stderr: stderr}
+func NewErrorLambdaResponse(eventId string, err error, stderr string) *liblambda.Response {
+	return &liblambda.Response{EventId: eventId, Message: err.Error(), Stderr: stderr}
 }

@@ -4,7 +4,7 @@
 // 	protoc        v3.12.4
 // source: grpc-api.proto
 
-package lambda
+package liblambda
 
 import (
 	context "context"
