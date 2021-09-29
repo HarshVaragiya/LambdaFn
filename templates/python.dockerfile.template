@@ -1,6 +1,0 @@
-FROM amazonlinux-python
-
-<<ENVIRONMENT_VARIABLES>>
-
-WORKDIR /lambda/code/
-RUN unzip source_code.zip && rm source_code.zip

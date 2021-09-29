@@ -24,11 +24,11 @@ func (manager *DockerContainerManager) Init() error {
 	return nil
 }
 
-func (manager *DockerContainerManager) startContainer(ctx context.Context, image, localPort, srcFolder, targetFolder string, env []string) (string, error) {
+func (manager *DockerContainerManager) startContainer(ctx context.Context, image, localPort, srcFolder, targetFolder string, env map[string]string) (string, error) {
 	containerOptions := &container.Config{
 		Image: image,
 		ExposedPorts: nat.PortSet{nat.Port(fmt.Sprintf("%d", containerRpcPort)): struct{}{}},
-		Env: env,
+		Env: generateEnvStrings(env),
 	}
 	hostOptions := &container.HostConfig{
 		PortBindings: map[nat.Port][]nat.PortBinding{
@@ -64,6 +64,14 @@ func (manager *DockerContainerManager) stopContainer(ctx context.Context, contai
 	return err
 }
 
+
+func generateEnvStrings(env map[string]string)[]string{
+	var strings []string
+	for key, value := range env{
+		strings = append(strings, fmt.Sprintf("%s=%s", key, value))
+	}
+	return strings
+}
 
 
 func prepareEnvironmentVariables(functionName, handler string, env map[string]string){

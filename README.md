@@ -22,11 +22,13 @@ The service should allow executing the following:
 
 ## ToDo List
 - [x] Implement Code Execution on server as a service (Binary mode)
-- [ ] Implement Function as a service inside container (Work in progress)
+- [x] Implement Function as a service inside container (Work in progress)
 - [ ] Integrate HTTP REST API to allow creation of lambda functions and executing them
 - [ ] Dockerize the whole service
 - [ ] Implement Hot & Cold Containers with timeouts
 - [ ] Implement Container Running as a service
+- [ ] Create client binary to allow creating and invoking lambda functions
+- [ ] Reformat existing code to use storage package. Create S3 backed local source code cache.
 
 ### Future Goals
 - [ ] Implement and Integrate an HTTP Proxy (like API Gateway) to allow functions to respond to REST calls

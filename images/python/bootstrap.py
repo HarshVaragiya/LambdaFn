@@ -23,7 +23,8 @@ handler_method = getattr(module, handler_function_name)
 for event in sys.stdin:
     response = {}
     try:
-        response = handler_method(event, "")
+        eventData = json.loads(event)['eventData']
+        response = handler_method(json.dumps(eventData, indent=4), "")
         output.write(json.dumps(response) + "\n")
     except Exception as e:
         log.write(json.dumps({'error': str(e)}) + "\n")

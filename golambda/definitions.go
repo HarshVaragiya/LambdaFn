@@ -8,6 +8,12 @@ import (
 	"time"
 )
 
+func init() {
+	if err := dockerContainerManager.Init(); err != nil{
+		log.Fatalf("error initializing docker container manager. error = %v", err)
+	}
+}
+
 var (
 	log           = logrus.New()
 	statusCodeMap = map[string]int32{
@@ -17,7 +23,12 @@ var (
 	}
 	defaultTimeout = time.Second * 10
 	containerRpcPort = uint16(8888)
-	containerTimeout = time.Second * 10
+	containerTimeout = time.Second * 2
+	dockerContainerManager = DockerContainerManager{}
+	runtimeToDockerImageMap = map[string]string{
+		"python3": "amazonlinux-python",
+	}
+	containerArchivePath = "/lambda/archive/"
 )
 
 type LambdaExecutor interface {

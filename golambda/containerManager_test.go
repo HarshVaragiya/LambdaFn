@@ -17,7 +17,7 @@ func TestContainerStartStop(t *testing.T) {
 		ctx := context.Background()
 		srcPath , _ := os.MkdirTemp(os.TempDir(), "lambdaFn-test")
 		defer os.RemoveAll(srcPath)
-		env := []string{"TEST_ENVIRONMENT_VARIABLE=TEST_VALUE"}
+		env := make(map[string]string)
 		containerId, err := builder.startContainer(ctx , "amazonlinux-python", "9000" , srcPath, "/lambda/archive/", env)
 		if err != nil {
 			t.Fatalf("error = %v", err)

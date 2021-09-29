@@ -15,6 +15,7 @@ type Function struct {
 	Runtime     string
 	Arn			string
 	Tags		map[string]string
+	Env			map[string]string
 }
 
 func (function Function) Invoke(event *liblambda.Event) (response *liblambda.Response, err error) {
@@ -38,9 +39,10 @@ func NewLocalOsLambdaFunction(name, codeUri, argument string) Function {
 	return function
 }
 
-func NewContainerLambdaFunction(name, codeUri, runtime, handler string) Function {
+func NewContainerLambdaFunction(name, codeUri, runtime, handler string) *Function {
 	log.Infof("Creating New Default Container Lambda Function [%s]", name)
-	function := Function{Name: name, CodeUri: codeUri, Handler: handler, Timeout: defaultTimeout, Runtime: runtime}
+	env := make(map[string]string)
+	function := Function{Name: name, CodeUri: codeUri, Handler: handler, Timeout: defaultTimeout, Runtime: runtime, Env: env}
 	function.Executor = NewContainerExecutor(function)
-	return function
+	return &function
 }
