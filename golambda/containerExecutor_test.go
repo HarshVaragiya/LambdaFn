@@ -16,7 +16,7 @@ func TestContainerExecutor_execute(t *testing.T) {
 			t.Fatalf("error invoking function. error = %v", err)
 		}
 		if resp.StatusCode != 200 {
-			t.Errorf("response not as expected. ")
+			t.Fatalf("response not as expected. ")
 		}
 		log.Printf("response : %v", resp)
 		log.Printf("response Data : %s", resp.Data)

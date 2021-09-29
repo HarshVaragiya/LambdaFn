@@ -40,10 +40,12 @@ func (executor ContainerExecutor) execute(event *liblambda.Event) (*liblambda.Re
 		log.Errorf("error starting docker container. exiting.")
 		return NewErrorLambdaResponse(event.EventId, err,""), err
 	}
-	//defer executor.StopContainer()
+
+	defer executor.StopContainer()
+
 	target := fmt.Sprintf("127.0.0.1:%s", executor.rpcPort)
 
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 100) // give time for the gRPC server to start before connecting to it
 
 	executor.client, err = NewLambdaClient(target)
 	if err != nil {
