@@ -20,6 +20,7 @@ var (
 		"default":        200,
 		"signal: killed": 201,
 		"error":          208,
+		"does-not-exist": 404,
 	}
 	defaultTimeout = time.Second * 10
 	containerRpcPort = uint16(8888)

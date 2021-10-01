@@ -8,6 +8,12 @@ var (
 	}
 	defaultConfigFileName = "config"
 	defaultConfigPaths = []string{"."}
+	statusCodeMap = map[string]int32{
+		"default":        200,
+		"signal: killed": 201,
+		"error":          208,
+		"does-not-exist": 404,
+	}
 )
 
 type ApplicationConfig struct {

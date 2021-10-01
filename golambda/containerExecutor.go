@@ -22,7 +22,7 @@ type ContainerExecutor struct {
 	ContainerId	 string
 }
 
-func NewContainerExecutor(function Function) ContainerExecutor {
+func NewContainerExecutor(function *Function) ContainerExecutor {
 	executor := BasicCodeExecutor{codeUri: function.CodeUri, functionHandler: function.Handler, functionTimeout: defaultTimeout}
 	containerExecutor := ContainerExecutor{codeExecutor: executor, runtime: function.Runtime, functionName: function.Name, Env: function.Env}
 	return containerExecutor
