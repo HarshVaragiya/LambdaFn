@@ -2,13 +2,14 @@ package main
 
 var (
 	defaultEnvApplicationPrefix = "LAMBDA_SERVER"
-	defaults = map[string]interface{}{
-		"ServerPort": 8080,
+	defaults                    = map[string]interface{}{
+		"ServerPort":       8080,
 		"AwsAccountNumber": 123412341234,
+		"Debug":            true,
 	}
 	defaultConfigFileName = "config"
-	defaultConfigPaths = []string{"."}
-	statusCodeMap = map[string]int32{
+	defaultConfigPaths    = []string{"."}
+	statusCodeMap         = map[string]int32{
 		"default":        200,
 		"signal: killed": 201,
 		"error":          208,
@@ -17,6 +18,7 @@ var (
 )
 
 type ApplicationConfig struct {
-	ServerPort			int
-	AwsAccountNumber	int64
+	ServerPort       int
+	AwsAccountNumber int64
+	Debug            bool
 }
