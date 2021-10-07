@@ -28,6 +28,11 @@ func (manager *LambdaManager) CreateLambdaFunction(function *golambda.Function) 
 		log.Warn(errMsg)
 		return liblambda.NewErrorRestResponse(errMsg, function.Name, "function exists"), fmt.Errorf("function exists")
 	}
+	if err = ValidateCreateLambda(function); err != nil {
+		msg := fmt.Sprintf("cannot validate function with name [%s]", function.Name)
+		log.Warnf(msg)
+		return liblambda.NewErrorRestResponse(msg, function.Name, err.Error()), err
+	}
 	if function.Timeout, err = time.ParseDuration(function.TimeoutSeconds); err != nil {
 		errMsg := fmt.Sprintf("error parsing time for new lambda function [%s]. time string : [%s]. error = %v", function.Name, function.TimeoutSeconds, err)
 		log.Warn(err)

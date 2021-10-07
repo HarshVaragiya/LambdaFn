@@ -1,3 +1,6 @@
 .idea
 bin/
 config.toml
+server/server
+server/config.toml
+cli/cli
