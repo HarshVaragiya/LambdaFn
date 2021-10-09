@@ -17,9 +17,9 @@ type ContainerExecutor struct {
 	rpcPort      string
 	codeExecutor BasicCodeExecutor
 	client       liblambda.LambdaClient
-	Env			 map[string]string
-	State		 string
-	ContainerId	 string
+	Env          map[string]string
+	State        string
+	ContainerId  string
 }
 
 func NewContainerExecutor(function *Function) ContainerExecutor {
@@ -30,7 +30,7 @@ func NewContainerExecutor(function *Function) ContainerExecutor {
 
 func (executor ContainerExecutor) execute(event *liblambda.Event) (*liblambda.Response, error) {
 	log.Infof("Invoking function [%s] in container executor.", executor.functionName)
-	tempDir, _ := os.MkdirTemp(os.TempDir(),"LambdaFn")
+	tempDir, _ := os.MkdirTemp(os.TempDir(), "LambdaFn")
 	defer os.RemoveAll(tempDir)
 	if err := copySrcArchiveToDir(executor.codeExecutor.codeUri, tempDir); err != nil {
 		return NewErrorLambdaResponse(event.EventId, err, ""), err
@@ -38,7 +38,7 @@ func (executor ContainerExecutor) execute(event *liblambda.Event) (*liblambda.Re
 	err := executor.StartContainer(tempDir)
 	if err != nil {
 		log.Errorf("error starting docker container. exiting.")
-		return NewErrorLambdaResponse(event.EventId, err,""), err
+		return NewErrorLambdaResponse(event.EventId, err, ""), err
 	}
 
 	defer executor.StopContainer()
@@ -78,10 +78,13 @@ func (executor *ContainerExecutor) StartContainer(tempDir string) error {
 	startCtx, startCancelFunc := context.WithTimeout(context.Background(), containerTimeout)
 	defer startCancelFunc()
 	log.Debugf("attempting to start docker container for [%s]", executor.functionName)
-	prepareEnvironmentVariables(executor.functionName,executor.codeExecutor.functionHandler, executor.Env)
-	dockerImage := runtimeToDockerImageMap[executor.runtime]
-	executor.rpcPort = fmt.Sprintf("%d",2000 + rand.Int() % 20000)
-	containerId, err := dockerContainerManager.startContainer(startCtx, dockerImage, executor.rpcPort, tempDir, containerArchivePath, executor.Env)
+	env := prepareEnvironmentVariables(executor.functionName, executor.codeExecutor.functionHandler, executor.Env)
+	dockerImage, exists := runtimeToDockerImageMap[executor.runtime]
+	if !exists {
+		return fmt.Errorf("lambda runtime [%v] not defined", executor.runtime)
+	}
+	executor.rpcPort = fmt.Sprintf("%d", 2000+rand.Int()%20000)
+	containerId, err := dockerContainerManager.startContainer(startCtx, dockerImage, executor.rpcPort, tempDir, containerArchivePath, env)
 	if err != nil {
 		log.Errorf("error starting docker container. error = %v", err)
 		executor.State = "ERROR"

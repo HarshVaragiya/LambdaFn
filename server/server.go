@@ -21,7 +21,7 @@ func (api *LambdaRestApi) Init() {
 
 func (api *LambdaRestApi) Create(ctx *gin.Context) {
 	var function golambda.Function
-	if err := ctx.BindJSON(&function); err != nil {
+	if err := ctx.BindJSON(&function); err == nil {
 		log.Infof("creating new lambda function [%s]", function.Name)
 		resp, err := api.lambdaManager.CreateLambdaFunction(&function)
 		respCode := http.StatusCreated
@@ -40,7 +40,7 @@ func (api *LambdaRestApi) Invoke(ctx *gin.Context) {
 	functionName := ctx.Param("functionName")
 	var event liblambda.Event
 	log.Debugf("received lambda invocation request for lambda [%s]", functionName)
-	if err := ctx.BindJSON(&event); err != nil {
+	if err := ctx.BindJSON(&event); err == nil {
 		event.EventId = uuid.NewString()
 		log.Infof("invoking lambda [%s] with eventId [%s]", functionName, event.EventId)
 		resp, err := api.lambdaManager.InvokeLambdaFunction(functionName, &event)
@@ -58,7 +58,7 @@ func (api *LambdaRestApi) Invoke(ctx *gin.Context) {
 
 func (api *LambdaRestApi) Delete(ctx *gin.Context) {
 	var function golambda.Function
-	if err := ctx.BindJSON(&function); err != nil {
+	if err := ctx.BindJSON(&function); err == nil {
 		log.Infof("removing lambda function [%s] ", function.Name)
 		resp, err := api.lambdaManager.RemoveLambdaFunction(&function)
 		respCode := http.StatusOK

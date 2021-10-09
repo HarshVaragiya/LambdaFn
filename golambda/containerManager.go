@@ -11,7 +11,7 @@ import (
 )
 
 type DockerContainerManager struct {
-	dockerClient		*client.Client
+	dockerClient *client.Client
 }
 
 func (manager *DockerContainerManager) Init() error {
@@ -26,17 +26,17 @@ func (manager *DockerContainerManager) Init() error {
 
 func (manager *DockerContainerManager) startContainer(ctx context.Context, image, localPort, srcFolder, targetFolder string, env map[string]string) (string, error) {
 	containerOptions := &container.Config{
-		Image: image,
+		Image:        image,
 		ExposedPorts: nat.PortSet{nat.Port(fmt.Sprintf("%d", containerRpcPort)): struct{}{}},
-		Env: generateEnvStrings(env),
+		Env:          generateEnvStrings(env),
 	}
 	hostOptions := &container.HostConfig{
 		PortBindings: map[nat.Port][]nat.PortBinding{
-			nat.Port(fmt.Sprintf("%d", containerRpcPort)): {{ HostIP: "127.0.0.1", HostPort: localPort}},
+			nat.Port(fmt.Sprintf("%d", containerRpcPort)): {{HostIP: "127.0.0.1", HostPort: localPort}},
 		},
 		Mounts: []mount.Mount{
 			{
-				Type: mount.TypeBind,
+				Type:   mount.TypeBind,
 				Source: srcFolder,
 				Target: targetFolder,
 			},
@@ -64,26 +64,28 @@ func (manager *DockerContainerManager) stopContainer(ctx context.Context, contai
 	return err
 }
 
-
-func generateEnvStrings(env map[string]string)[]string{
+func generateEnvStrings(env map[string]string) []string {
 	var strings []string
-	for key, value := range env{
+	for key, value := range env {
 		strings = append(strings, fmt.Sprintf("%s=%s", key, value))
 	}
 	return strings
 }
 
-
-func prepareEnvironmentVariables(functionName, handler string, env map[string]string){
-	_ , exists := env["LAMBDA_FUNCTION_NAME"]
+func prepareEnvironmentVariables(functionName, handler string, env map[string]string) map[string]string {
+	if env == nil {
+		log.Debug("env is not defined")
+		env = make(map[string]string)
+	}
+	_, exists := env["LAMBDA_FUNCTION_NAME"]
 	if exists {
 		log.Tracef("Lambda environment specifies function name. using that.")
 	} else {
 		env["LAMBDA_FUNCTION_NAME"] = functionName
 	}
 
-	existingHandler , exists := env["LAMBDA_HANDLER_FUNCTION"]
-	if exists{
+	existingHandler, exists := env["LAMBDA_HANDLER_FUNCTION"]
+	if exists {
 		if existingHandler != handler {
 			log.Errorf("Lambda environment specifies handler different than the one configured. overriding")
 			env["LAMBDA_HANDLER_FUNCTION"] = handler
@@ -93,4 +95,5 @@ func prepareEnvironmentVariables(functionName, handler string, env map[string]st
 	} else {
 		env["LAMBDA_HANDLER_FUNCTION"] = handler
 	}
+	return env
 }

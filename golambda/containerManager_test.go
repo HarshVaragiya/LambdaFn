@@ -15,10 +15,10 @@ func TestContainerStartStop(t *testing.T) {
 			t.Fatalf("error initializing container manager. error = %v", err)
 		}
 		ctx := context.Background()
-		srcPath , _ := os.MkdirTemp(os.TempDir(), "lambdaFn-test")
+		srcPath, _ := os.MkdirTemp(os.TempDir(), "lambdaFn-test")
 		defer os.RemoveAll(srcPath)
 		env := make(map[string]string)
-		containerId, err := builder.startContainer(ctx , "amazonlinux-python", "9000" , srcPath, "/lambda/archive/", env)
+		containerId, err := builder.startContainer(ctx, "amazonlinux-python", "9000", srcPath, "/lambda/archive/", env)
 		if err != nil {
 			t.Fatalf("error = %v", err)
 		}
@@ -37,7 +37,7 @@ func TestPrepareEnvironmentVariables(t *testing.T) {
 		environ := map[string]string{}
 		functionName := "secret-lambda-testing-function"
 		testHandler := "example.lambda_handler"
-		prepareEnvironmentVariables(functionName,testHandler,environ)
+		prepareEnvironmentVariables(functionName, testHandler, environ)
 		name := environ["LAMBDA_FUNCTION_NAME"]
 		handler := environ["LAMBDA_HANDLER_FUNCTION"]
 		if name != functionName || testHandler != handler {

@@ -11,12 +11,13 @@ import (
 type LambdaManager struct {
 	lock             *sync.RWMutex
 	awsAccountNumber int64 // used to generate function ARN
-	lambdaFunctions  map[string]golambda.Function
+	lambdaFunctions  map[string]*golambda.Function
 }
 
 func NewLambdaManager(awsAccountNumber int64) *LambdaManager {
 	lock := &sync.RWMutex{}
-	return &LambdaManager{awsAccountNumber: awsAccountNumber, lock: lock}
+	emptyMap := make(map[string]*golambda.Function)
+	return &LambdaManager{awsAccountNumber: awsAccountNumber, lock: lock, lambdaFunctions: emptyMap}
 }
 
 func (manager *LambdaManager) CreateLambdaFunction(function *golambda.Function) (*liblambda.LambdaRestApiResponse, error) {
@@ -42,6 +43,7 @@ func (manager *LambdaManager) CreateLambdaFunction(function *golambda.Function) 
 	function.CalculateArn(manager.awsAccountNumber)
 	msg := fmt.Sprintf("created function [%s] with arn [%s]", function.Name, function.Arn)
 	log.Info(msg)
+	manager.lambdaFunctions[function.Name] = function
 	return liblambda.NewOkRestResponse(msg, function.Name, function.Arn, msg), nil
 }
 
