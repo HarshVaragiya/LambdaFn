@@ -59,7 +59,8 @@ func (manager *DockerContainerManager) startContainer(ctx context.Context, image
 func (manager *DockerContainerManager) stopContainer(ctx context.Context, containerId string) error {
 	err := manager.dockerClient.ContainerStop(ctx, containerId, &containerTimeout)
 	if err != nil {
-		log.Errorf("error stopping docker container [%s]. error = %v", containerId, err)
+		log.Warnf("error stopping docker container [%s]", containerId)
+		log.Debugf("error stopping docker container [%s]. error = %v", containerId, err)
 	}
 	return err
 }

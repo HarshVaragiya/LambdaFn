@@ -83,7 +83,7 @@ func (executor *ContainerExecutor) StartContainer(tempDir string) error {
 	if !exists {
 		return fmt.Errorf("lambda runtime [%v] not defined", executor.runtime)
 	}
-	executor.rpcPort = fmt.Sprintf("%d", 2000+rand.Int()%20000)
+	executor.rpcPort = fmt.Sprintf("%d", 2000+rand.Intn(20000))
 	containerId, err := dockerContainerManager.startContainer(startCtx, dockerImage, executor.rpcPort, tempDir, containerArchivePath, env)
 	if err != nil {
 		log.Errorf("error starting docker container. error = %v", err)
@@ -103,7 +103,7 @@ func (executor *ContainerExecutor) StopContainer() {
 		defer cancelFunc()
 		err := dockerContainerManager.stopContainer(ctx, executor.ContainerId)
 		if err != nil {
-			log.Warnf("error stopping docker container. error = %v", err)
+			log.Warnf("error stopping docker container")
 			executor.State = "ERROR-STOPPING"
 		} else {
 			log.Debugf("stopped docker container for function [%s]", executor.functionName)
