@@ -1,6 +1,6 @@
 FROM amazonlinux
 
-ENV LAMBDA_RUNTIME=python
+ENV LAMBDA_RUNTIME=python3
 ENV LAMBDA_BOOTSTRAP_BINARY=/lambda/bootstrap.py
 ENV BOOTSTRAP_LOG_FILE=/lambda/bootstrap.log
 
