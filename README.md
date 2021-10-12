@@ -5,6 +5,8 @@ An open source, self-hosted service to run AWS Lambda Functions on your own hard
 
 ![LambdaFn in Action](assets/img.png)
 
+- [Installation Instructions - INSTALL.md](INSTALL.md)
+
 ## Project
 - This project is to try creating a service which can work like AWS Lambda / Google AppEngine
 - All code executions happen on your own hardware. Docker is used to manage containers that run code
